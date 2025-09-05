@@ -98,11 +98,11 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5 text-pink-500" />
-                <span className="text-gray-400">+91 98765 43210</span>
+                <span className="text-gray-400">+91 00000000</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5 text-pink-500" />
-                <span className="text-gray-400">Mumbai, India</span>
+                <span className="text-gray-400">Shilong, India</span>
               </div>
             </div>
           </motion.div>
@@ -144,7 +144,7 @@ export default function Footer() {
           className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between"
         >
           <p className="text-gray-400 text-sm mb-4 md:mb-0">
-            © 2024 DoodleArt. All rights reserved.
+            © 2025 DoodleArt. All rights reserved.
           </p>
           <div className="flex items-center space-x-2 text-gray-400 text-sm">
             <span>Made with</span>
