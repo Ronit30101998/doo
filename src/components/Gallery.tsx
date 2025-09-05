@@ -1,121 +1,230 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Palette, ShoppingCart, Sun, Moon } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ShoppingCart, Filter, Search } from 'lucide-react'
+import { useState } from 'react'
 import { useCart } from '@/hooks/useCart'
-import CartModal from './CartModal'
+import toast from 'react-hot-toast'
+import Image from 'next/image'
 
-export default function Header() {
-  const { items } = useCart()
-  const [isDark, setIsDark] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
+const doodleArtworks = [
+  {
+    id: 1,
+    title: 'Whimsical Forest',
+    price: 1299,
+    image: 'https://images.pexels.com/photos/1266808/pexels-photo-1266808.jpeg',
+    category: 'Nature',
+    description: 'A magical forest scene with cute creatures'
+  },
+  {
+    id: 2,
+    title: 'City Dreams',
+    price: 1599,
+    image: 'https://images.pexels.com/photos/1145720/pexels-photo-1145720.jpeg',
+    category: 'Urban',
+    description: 'Modern cityscape with artistic flair'
+  },
+  {
+    id: 3,
+    title: 'Ocean Waves',
+    price: 1199,
+    image: 'https://images.pexels.com/photos/1266808/pexels-photo-1266808.jpeg',
+    category: 'Nature',
+    description: 'Peaceful ocean scene with flowing waves'
+  },
+  {
+    id: 4,
+    title: 'Space Adventure',
+    price: 1799,
+    image: 'https://images.pexels.com/photos/1145720/pexels-photo-1145720.jpeg',
+    category: 'Fantasy',
+    description: 'Cosmic journey through the stars'
+  },
+  {
+    id: 5,
+    title: 'Garden Party',
+    price: 1399,
+    image: 'https://images.pexels.com/photos/1266808/pexels-photo-1266808.jpeg',
+    category: 'Nature',
+    description: 'Colorful garden with blooming flowers'
+  },
+  {
+    id: 6,
+    title: 'Abstract Emotions',
+    price: 1699,
+    image: 'https://images.pexels.com/photos/1145720/pexels-photo-1145720.jpeg',
+    category: 'Abstract',
+    description: 'Expressive abstract composition'
+  }
+]
 
-  useEffect(() => {
-    const theme = localStorage.getItem('theme')
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const shouldBeDark = theme === 'dark' || (!theme && systemDark)
-    
-    setIsDark(shouldBeDark)
-    document.documentElement.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light')
-  }, [])
+const categories = ['All', 'Nature', 'Urban', 'Fantasy', 'Abstract']
 
-  const toggleTheme = () => {
-    const newTheme = !isDark
-    setIsDark(newTheme)
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light')
-    document.documentElement.setAttribute('data-theme', newTheme ? 'dark' : 'light')
+export default function Gallery() {
+  const { addItem } = useCart()
+  const [selectedCategory, setSelectedCategory] = useState('All')
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredArtworks = doodleArtworks.filter(artwork => {
+    const matchesCategory = selectedCategory === 'All' || artwork.category === selectedCategory
+    const matchesSearch = artwork.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         artwork.description.toLowerCase().includes(searchTerm.toLowerCase())
+    return matchesCategory && matchesSearch
+  })
+
+  const handleAddToCart = (artwork: typeof doodleArtworks[0]) => {
+    addItem(artwork)
+    toast.success(`${artwork.title} added to cart!`)
   }
 
-  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
-
   return (
-    <>
-      <motion.header 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className={`fixed top-0 w-full backdrop-blur-md z-50 border-b transition-colors ${
-          isDark 
-            ? 'bg-gray-900/80 border-pink-500/20' 
-            : 'bg-white/80 border-pink-200'
-        }`}
-      >
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div 
-              className="flex items-center space-x-3"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <div className="relative">
-                <Palette className="w-8 h-8 text-pink-500" />
-                <motion.div
-                  className="absolute -top-1 -right-1 w-3 h-3 bg-pink-400 rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </div>
-              <h1 className="text-2xl font-bold gradient-text">DoodleArt</h1>
-            </motion.div>
+    <section id="gallery" className="py-20 px-6 bg-white dark:bg-gray-900 transition-colors">
+      <div className="container mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            Our <span className="gradient-text">Gallery</span>
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            Explore our collection of unique hand-drawn doodles, each piece crafted with love and attention to detail.
+          </p>
+        </motion.div>
 
-            <nav className="hidden md:flex items-center space-x-8">
-              {['Home', 'Gallery', 'Custom', 'About', 'Contact'].map((item, index) => (
-                <motion.a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className={`font-medium transition-colors ${
-                    isDark 
-                      ? 'text-gray-300 hover:text-pink-400' 
-                      : 'text-gray-700 hover:text-pink-600'
+        {/* Search and Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="flex flex-col md:flex-row gap-6 mb-12"
+        >
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search artworks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <div className="flex items-center space-x-2">
+            <Filter className="text-gray-400 w-5 h-5" />
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <motion.button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full font-medium transition-all ${
+                    selectedCategory === category
+                      ? 'pink-gradient text-white'
+                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                   }`}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.5 }}
-                  whileHover={{ scale: 1.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  {item}
-                </motion.a>
+                  {category}
+                </motion.button>
               ))}
-            </nav>
-
-            <div className="flex items-center space-x-4">
-              <motion.button
-                onClick={toggleTheme}
-                className={`p-3 rounded-full transition-colors ${
-                  isDark 
-                    ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </motion.button>
-
-              <motion.button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-3 pink-gradient text-white rounded-full hover:opacity-90 transition-opacity"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold"
-                  >
-                    {cartCount}
-                  </motion.span>
-                )}
-              </motion.button>
             </div>
           </div>
-        </div>
-      </motion.header>
+        </motion.div>
 
-      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-    </>
+        {/* Gallery Grid */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {filteredArtworks.map((artwork, index) => (
+            <motion.div
+              key={artwork.id}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-gray-50 dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg card-hover group"
+            >
+              <div className="relative overflow-hidden">
+                <Image
+                  src={artwork.image}
+                  alt={artwork.title}
+                  width={400}
+                  height={300}
+                  className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <motion.button
+                  onClick={() => handleAddToCart(artwork)}
+                  className="absolute top-4 right-4 p-3 bg-white/90 dark:bg-gray-900/90 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-pink-500 hover:text-white"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                </motion.button>
+              </div>
+
+              <div className="p-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">
+                      {artwork.title}
+                    </h3>
+                    <span className="text-sm text-pink-600 dark:text-pink-400 font-medium">
+                      {artwork.category}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                      ₹{artwork.price.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm">
+                  {artwork.description}
+                </p>
+
+                <motion.button
+                  onClick={() => handleAddToCart(artwork)}
+                  className="w-full py-3 pink-gradient text-white rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center space-x-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>Add to Cart</span>
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {filteredArtworks.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <div className="text-6xl mb-4">🎨</div>
+            <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+              No artworks found
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              Try adjusting your search or filter criteria
+            </p>
+          </motion.div>
+        )}
+      </div>
+    </section>
   )
 }

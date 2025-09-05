@@ -1,53 +1,36 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Palette, ShoppingCart, Sun, Moon } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { useCart } from '@/hooks/useCart'
-import CartModal from './CartModal'
+import { Palette, Mail, Phone, MapPin, Instagram, Twitter, Facebook, Heart } from 'lucide-react'
 
-export default function Header() {
-  const { items } = useCart()
-  const [isDark, setIsDark] = useState(false)
-  const [isCartOpen, setIsCartOpen] = useState(false)
+const socialLinks = [
+  { icon: Instagram, href: '#', label: 'Instagram' },
+  { icon: Twitter, href: '#', label: 'Twitter' },
+  { icon: Facebook, href: '#', label: 'Facebook' }
+]
 
-  useEffect(() => {
-    const theme = localStorage.getItem('theme')
-    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    const shouldBeDark = theme === 'dark' || (!theme && systemDark)
-    
-    setIsDark(shouldBeDark)
-    document.documentElement.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light')
-  }, [])
+const quickLinks = [
+  { name: 'Home', href: '#home' },
+  { name: 'Gallery', href: '#gallery' },
+  { name: 'Custom Orders', href: '#custom' },
+  { name: 'About Us', href: '#about' },
+  { name: 'Contact', href: '#contact' }
+]
 
-  const toggleTheme = () => {
-    const newTheme = !isDark
-    setIsDark(newTheme)
-    localStorage.setItem('theme', newTheme ? 'dark' : 'light')
-    document.documentElement.setAttribute('data-theme', newTheme ? 'dark' : 'light')
-  }
-
-  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
-
+export default function Footer() {
   return (
-    <>
-      <motion.header 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className={`fixed top-0 w-full backdrop-blur-md z-50 border-b transition-colors ${
-          isDark 
-            ? 'bg-gray-900/80 border-pink-500/20' 
-            : 'bg-white/80 border-pink-200'
-        }`}
-      >
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div 
-              className="flex items-center space-x-3"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
+    <footer className="bg-gray-900 dark:bg-black text-white py-16 px-6">
+      <div className="container mx-auto">
+        <div className="grid md:grid-cols-4 gap-8 mb-12">
+          {/* Brand */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="space-y-4"
+          >
+            <div className="flex items-center space-x-3">
               <div className="relative">
                 <Palette className="w-8 h-8 text-pink-500" />
                 <motion.div
@@ -56,66 +39,120 @@ export default function Header() {
                   transition={{ duration: 2, repeat: Infinity }}
                 />
               </div>
-              <h1 className="text-2xl font-bold gradient-text">DoodleArt</h1>
-            </motion.div>
-
-            <nav className="hidden md:flex items-center space-x-8">
-              {['Home', 'Gallery', 'Custom', 'About', 'Contact'].map((item, index) => (
+              <h3 className="text-2xl font-bold gradient-text">DoodleArt</h3>
+            </div>
+            <p className="text-gray-400 leading-relaxed">
+              Creating unique hand-drawn doodles that bring joy and personality to your space. 
+              Every piece tells a story.
+            </p>
+            <div className="flex space-x-4">
+              {socialLinks.map((social) => (
                 <motion.a
-                  key={item}
-                  href={`#${item.toLowerCase()}`}
-                  className={`font-medium transition-colors ${
-                    isDark 
-                      ? 'text-gray-300 hover:text-pink-400' 
-                      : 'text-gray-700 hover:text-pink-600'
-                  }`}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.5 }}
+                  key={social.label}
+                  href={social.href}
+                  className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors"
                   whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={social.label}
                 >
-                  {item}
+                  <social.icon className="w-5 h-5" />
                 </motion.a>
               ))}
-            </nav>
+            </div>
+          </motion.div>
 
-            <div className="flex items-center space-x-4">
-              <motion.button
-                onClick={toggleTheme}
-                className={`p-3 rounded-full transition-colors ${
-                  isDark 
-                    ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </motion.button>
-
-              <motion.button
-                onClick={() => setIsCartOpen(true)}
-                className="relative p-3 pink-gradient text-white rounded-full hover:opacity-90 transition-opacity"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold"
+          {/* Quick Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
+            <h4 className="text-lg font-semibold mb-6">Quick Links</h4>
+            <ul className="space-y-3">
+              {quickLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-gray-400 hover:text-pink-400 transition-colors"
                   >
-                    {cartCount}
-                  </motion.span>
-                )}
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Contact Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <h4 className="text-lg font-semibold mb-6">Contact Info</h4>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-pink-500" />
+                <span className="text-gray-400">hello@doodleart.com</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Phone className="w-5 h-5 text-pink-500" />
+                <span className="text-gray-400">+91 98765 43210</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <MapPin className="w-5 h-5 text-pink-500" />
+                <span className="text-gray-400">Mumbai, India</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Newsletter */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+          >
+            <h4 className="text-lg font-semibold mb-6">Stay Updated</h4>
+            <p className="text-gray-400 mb-4">
+              Subscribe to get updates on new artworks and special offers.
+            </p>
+            <div className="space-y-3">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent text-white placeholder-gray-400"
+              />
+              <motion.button
+                className="w-full py-3 pink-gradient text-white rounded-lg font-semibold hover:opacity-90 transition-opacity"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Subscribe
               </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
-      </motion.header>
 
-      <CartModal isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-    </>
+        {/* Bottom Bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+          className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between"
+        >
+          <p className="text-gray-400 text-sm mb-4 md:mb-0">
+            © 2024 DoodleArt. All rights reserved.
+          </p>
+          <div className="flex items-center space-x-2 text-gray-400 text-sm">
+            <span>Made with</span>
+            <Heart className="w-4 h-4 text-pink-500" />
+            <span>for art lovers</span>
+          </div>
+        </motion.div>
+      </div>
+    </footer>
   )
 }
